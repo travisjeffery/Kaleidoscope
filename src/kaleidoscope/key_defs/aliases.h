@@ -51,6 +51,8 @@
 #define Key_RightParen        LSHIFT(Key_0)
 #define Key_LeftCurlyBracket  LSHIFT(Key_LeftBracket)
 #define Key_RightCurlyBracket LSHIFT(Key_RightBracket)
+#define Key_LeftAngleBracket  LSHIFT(Key_Comma)
+#define Key_RightAngleBracket LSHIFT(Key_Period)
 
 #define Key_Pipe              LSHIFT(Key_Backslash)
 

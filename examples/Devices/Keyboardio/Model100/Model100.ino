@@ -10,10 +10,6 @@
 // The Kaleidoscope core
 #include "Kaleidoscope.h"
 
-// Support for storing the keymap in EEPROM
-#include "Kaleidoscope-EEPROM-Settings.h"
-#include "Kaleidoscope-EEPROM-Keymap.h"
-
 // Support for communicating with the host via a simple Serial protocol
 #include "Kaleidoscope-FocusSerial.h"
 
@@ -66,9 +62,6 @@
 // Support for setting and saving the default LED mode
 #include "Kaleidoscope-DefaultLEDModeConfig.h"
 
-// Support for changing the brightness of the LEDs
-#include "Kaleidoscope-LEDBrightnessConfig.h"
-
 // Support for Keyboardio's internal keyboard testing mode
 #include "Kaleidoscope-HardwareTestMode.h"
 
@@ -80,13 +73,6 @@
 
 // Support for USB quirks, like changing the key state report protocol
 #include "Kaleidoscope-USB-Quirks.h"
-
-// Support for secondary actions on keys
-#include "Kaleidoscope-Qukeys.h"
-
-// Support for one-shot modifiers and layer keys
-#include "Kaleidoscope-OneShot.h"
-#include "Kaleidoscope-Escape-OneShot.h"
 
 // Support for dynamic, Chrysalis-editable macros
 #include "Kaleidoscope-DynamicMacros.h"
@@ -187,11 +173,12 @@ enum {
   *
   */
 
-#define PRIMARY_KEYMAP_QWERTY
+// #define PRIMARY_KEYMAP_QWERTY
 // #define PRIMARY_KEYMAP_DVORAK
 // #define PRIMARY_KEYMAP_COLEMAK
 // #define PRIMARY_KEYMAP_CUSTOM
 
+#define _SPACECADET_TIMEOUT_ 225
 
 /* This comment temporarily turns off astyle's indent enforcement
  *   so we can make the keymaps actually resemble the physical key layout better
@@ -200,93 +187,33 @@ enum {
 
 KEYMAPS(
 
-#if defined (PRIMARY_KEYMAP_QWERTY)
   [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
+  (___,                       Key_1, Key_2, Key_3, Key_4, Key_5, Key_Backslash,
    Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
-   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
+   Key_PageUp,           Key_A, Key_S, Key_D, Key_F, Key_G,
+   Key_PageDown,          Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
    Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
    ShiftToLayer(FUNCTION),
 
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
+   Key_Backslash, Key_6, Key_7, Key_8,     Key_9,         Key_0,         Key_Delete,
    Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
                   Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
    Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
    Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
-
-#elif defined (PRIMARY_KEYMAP_DVORAK)
-
-  [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1,         Key_2,     Key_3,      Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Quote,     Key_Comma, Key_Period, Key_P, Key_Y, Key_Tab,
-   Key_PageUp,   Key_A,         Key_O,     Key_E,      Key_U, Key_I,
-   Key_PageDown, Key_Semicolon, Key_Q,     Key_J,      Key_K, Key_X, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
-   ShiftToLayer(FUNCTION),
-
-   M(MACRO_ANY),   Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
-   Key_Enter,      Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
-                   Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
-   Key_RightAlt,   Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
-   ShiftToLayer(FUNCTION)),
-
-#elif defined (PRIMARY_KEYMAP_COLEMAK)
-
-  [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_F, Key_P, Key_B, Key_Tab,
-   Key_PageUp,   Key_A, Key_R, Key_S, Key_T, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_D, Key_V, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
-   ShiftToLayer(FUNCTION),
-
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
-   Key_Enter,     Key_J, Key_L, Key_U,     Key_Y,         Key_Semicolon, Key_Equals,
-                  Key_M, Key_N, Key_E,     Key_I,         Key_O,         Key_Quote,
-   Key_RightAlt,  Key_K, Key_H, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
-   ShiftToLayer(FUNCTION)),
-
-#elif defined (PRIMARY_KEYMAP_CUSTOM)
-  // Edit this keymap to make a custom layout
-  [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
-   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
-   ShiftToLayer(FUNCTION),
-
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
-   Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
-                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
-   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
-   ShiftToLayer(FUNCTION)),
-
-#else
-
-#error "No default keymap defined. You should make sure that you have a line like '#define PRIMARY_KEYMAP_QWERTY' in your sketch"
-
-#endif
-
-
 
   [NUMPAD] =  KEYMAP_STACKED
-  (___, ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___,
+  (___,  ___,           Key_Clear,       Key_KeypadDivide,   Key_KeypadMultiply, Key_KeypadEquals,   ___,
+   ___,  ___,           Key_Keypad7,     Key_Keypad8,        Key_Keypad9,        Key_KeypadSubtract, ___,
+   ___,  Key_Backspace, Key_Keypad4,     Key_Keypad5,        Key_Keypad6,        Key_KeypadAdd,
+   ___,  ___,           Key_Keypad1,     Key_Keypad2,        Key_Keypad3,        Key_KeypadEnter,    ___,
+   Key_Keypad0, Key_KeypadDot, ___, ___,
    ___,
 
-   M(MACRO_VERSION_INFO),  ___, Key_7, Key_8,      Key_9,              Key_KeypadSubtract, ___,
-   ___,                    ___, Key_4, Key_5,      Key_6,              Key_KeypadAdd,      ___,
-                           ___, Key_1, Key_2,      Key_3,              Key_Equals,         ___,
-   ___,                    ___, Key_0, Key_Period, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
+   M(MACRO_VERSION_INFO),  ___, ___, ___, ___, ___, ___,
+   ___,                    ___, ___, ___, ___, ___, ___,
+                           ___, ___, ___, ___, ___, ___,
+   ___,                    ___, ___, ___, ___, ___, ___,
    ___, ___, ___, ___,
    ___),
 
@@ -302,7 +229,7 @@ KEYMAPS(
    Consumer_PlaySlashPause,    Consumer_ScanNextTrack, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
                                Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  ___,              ___,
    Key_PcApplication,          Consumer_Mute,          Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,             Key_Backslash,    Key_Pipe,
-   ___, ___, Key_Enter, ___,
+   ___, ___, Key_Enter, Key_RightGui,
    ___)
 ) // KEYMAPS(
 
@@ -407,6 +334,7 @@ static kaleidoscope::plugin::LEDSolidColor solidGreen(0, 160, 0);
 static kaleidoscope::plugin::LEDSolidColor solidBlue(0, 70, 130);
 static kaleidoscope::plugin::LEDSolidColor solidIndigo(0, 0, 170);
 static kaleidoscope::plugin::LEDSolidColor solidViolet(130, 0, 120);
+static kaleidoscope::plugin::LEDSolidColor solidGrey(95, 75, 70);
 
 /** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
  * and turns them back on when it wakes up.
@@ -457,23 +385,11 @@ static void toggleKeyboardProtocol(uint8_t combo_index) {
 }
 
 /**
- * Toggles between using the built-in keymap, and the EEPROM-stored one.
- */
-static void toggleKeymapSource(uint8_t combo_index) {
-  if (Layer.getKey == Layer.getKeyFromPROGMEM) {
-    Layer.getKey = EEPROMKeymap.getKey;
-  } else {
-    Layer.getKey = Layer.getKeyFromPROGMEM;
-  }
-}
-
-/**
  *  This enters the hardware test mode
  */
 static void enterHardwareTestMode(uint8_t combo_index) {
   HardwareTestMode.runTests();
 }
-
 
 /** Magic combo list, a list of key combo and action pairs the firmware should
  * recognise.
@@ -483,10 +399,8 @@ USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
                   .keys = {R3C6, R2C6, R3C7}},
                  {.action = enterHardwareTestMode,
                   // Left Fn + Prog + LED
-                  .keys = {R3C6, R0C0, R0C6}},
-                 {.action = toggleKeymapSource,
-                  // Left Fn + Prog + Shift
-                  .keys = {R3C6, R0C0, R3C7}});
+                  .keys = {R3C6, R0C0, R0C6}}
+                  );
 
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are
@@ -495,91 +409,24 @@ KALEIDOSCOPE_INIT_PLUGINS(
   // ----------------------------------------------------------------------
   // Chrysalis plugins
 
-  // The EEPROMSettings & EEPROMKeymap plugins make it possible to have an
-  // editable keymap in EEPROM.
-  EEPROMSettings,
-  EEPROMKeymap,
-
-  // Focus allows bi-directional communication with the host, and is the
-  // interface through which the keymap in EEPROM can be edited.
-  Focus,
-
-  // FocusSettingsCommand adds a few Focus commands, intended to aid in
-  // changing some settings of the keyboard, such as the default layer (via the
-  // `settings.defaultLayer` command)
-  FocusSettingsCommand,
-
-  // FocusEEPROMCommand adds a set of Focus commands, which are very helpful in
-  // both debugging, and in backing up one's EEPROM contents.
-  FocusEEPROMCommand,
-
-  // The FirmwareVersion plugin lets Chrysalis query the version of the firmware
-  // programmatically.
-  FirmwareVersion,
-
-  // The LayerNames plugin allows Chrysalis to display - and edit - custom layer
-  // names, to be shown instead of the default indexes.
-  LayerNames,
-
-  // Enables setting, saving (via Chrysalis), and restoring (on boot) the
-  // default LED mode.
-  DefaultLEDModeConfig,
-
-  // Enables controlling (and saving) the brightness of the LEDs via Focus.
-  LEDBrightnessConfig,
-
   // ----------------------------------------------------------------------
   // Keystroke-handling plugins
-
-  // The Qukeys plugin enables the "Secondary action" functionality in
-  // Chrysalis. Keys with secondary actions will have their primary action
-  // performed when tapped, but the secondary action when held.
-  Qukeys,
 
   // SpaceCadet can turn your shifts into parens on tap, while keeping them as
   // Shifts when held. SpaceCadetConfig lets Chrysalis configure some aspects of
   // the plugin.
   SpaceCadet,
-  SpaceCadetConfig,
-
-  // Enables the "Sticky" behavior for modifiers, and the "Layer shift when
-  // held" functionality for layer keys.
-  OneShot,
-  OneShotConfig,
-  EscapeOneShot,
-  EscapeOneShotConfig,
-
-  // The macros plugin adds support for macros
-  Macros,
-
-  // Enables dynamic, Chrysalis-editable macros.
-  DynamicMacros,
-
-  // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-  MouseKeys,
-  MouseKeysConfig,
-
-  // The MagicCombo plugin lets you use key combinations to trigger custom
-  // actions - a bit like Macros, but triggered by pressing multiple keys at the
-  // same time.
-  MagicCombo,
-
-  // Enables the GeminiPR Stenography protocol. Unused by default, but with the
-  // plugin enabled, it becomes configurable - and then usable - via Chrysalis.
-  GeminiPR,
 
   // ----------------------------------------------------------------------
   // LED mode plugins
-
-  // The boot greeting effect pulses the LED button for 10 seconds after the
-  // keyboard is first connected
-  BootGreetingEffect,
 
   // LEDControl provides support for other LED modes
   LEDControl,
 
   // We start with the LED effect that turns off all the LEDs.
   LEDOff,
+
+  solidGrey,
 
   // The rainbow effect changes the color of all of the keyboard's keys at the same time
   // running through all the colors of the rainbow.
@@ -589,35 +436,11 @@ KALEIDOSCOPE_INIT_PLUGINS(
   // and slowly moves the rainbow across your keyboard
   LEDRainbowWaveEffect,
 
-  // The chase effect follows the adventure of a blue pixel which chases a red pixel across
-  // your keyboard. Spoiler: the blue pixel never catches the red pixel
-  LEDChaseEffect,
-
   // These static effects turn your keyboard's LEDs a variety of colors
-  solidRed,
   solidOrange,
   solidYellow,
   solidGreen,
   solidBlue,
-  solidIndigo,
-  solidViolet,
-
-  // The breathe effect slowly pulses all of the LEDs on your keyboard
-  LEDBreatheEffect,
-
-  // The AlphaSquare effect prints each character you type, using your
-  // keyboard's LEDs as a display
-  AlphaSquareEffect,
-
-  // The stalker effect lights up the keys you've pressed recently
-  StalkerEffect,
-
-  // The LED Palette Theme plugin provides a shared palette for other plugins,
-  // like Colormap below
-  LEDPaletteTheme,
-
-  // The Colormap effect makes it possible to set up per-layer colormaps
-  ColormapEffect,
 
   // The colormap overlay plugin provides a way to set LED colors regardless of
   // the active LED effect. This is used for lighting up the keys assigned in
@@ -627,10 +450,6 @@ KALEIDOSCOPE_INIT_PLUGINS(
   // The HostPowerManagement plugin allows us to turn LEDs off when then host
   // goes to sleep, and resume them when it wakes up.
   HostPowerManagement,
-
-  // Turns LEDs off after a configurable amount of idle time.
-  IdleLEDs,
-  PersistentIdleLEDs,
 
   // ----------------------------------------------------------------------
   // Miscellaneous plugins
@@ -693,7 +512,7 @@ void setup() {
   BootGreetingEffect.hue = 85;
 
   // We configure the AlphaSquare effect to use RED letters
-  AlphaSquare.color = CRGB(255, 0, 0);
+  //AlphaSquare.color = CRGB(255, 0, 0);
 
   // Set the rainbow effects to be reasonably bright, but low enough
   // to mitigate audible noise in some environments.
@@ -706,14 +525,14 @@ void setup() {
   // The LED Stalker mode has a few effects. The one we like is called
   // 'BlazingTrail'. For details on other options, see
   // https://github.com/keyboardio/Kaleidoscope/blob/master/docs/plugins/LED-Stalker.md
-  StalkerEffect.variant = STALKER(BlazingTrail);
+  //StalkerEffect.variant = STALKER(BlazingTrail);
 
   // To make the keymap editable without flashing new firmware, we store
   // additional layers in EEPROM. For now, we reserve space for eight layers. If
   // one wants to use these layers, just set the default layer to one in EEPROM,
   // by using the `settings.defaultLayer` Focus command, or by using the
   // `keymap.onlyCustom` command to use EEPROM layers only.
-  EEPROMKeymap.setup(8);
+  //EEPROMKeymap.setup(8);
 
   // We need to tell the Colormap plugin how many layers we want to have custom
   // maps for. To make things simple, we set it to eight layers, which is how
@@ -723,21 +542,40 @@ void setup() {
 
   // For Dynamic Macros, we need to reserve storage space for the editable
   // macros. A kilobyte is a reasonable default.
-  DynamicMacros.reserve_storage(1024);
+  //DynamicMacros.reserve_storage(1024);
 
   // If there's a default layer set in EEPROM, we should set that as the default
   // here.
-  Layer.move(EEPROMSettings.default_layer());
+  //Layer.move(EEPROMSettings.default_layer());
 
   // To avoid any surprises, SpaceCadet is turned off by default. However, it
   // can be permanently enabled via Chrysalis, so we should only disable it if
   // no configuration exists.
-  SpaceCadetConfig.disableSpaceCadetIfUnconfigured();
+  //SpaceCadetConfig.disableSpaceCadetIfUnconfigured();
+  SpaceCadet.enableWithoutDelay();
+
+  //Set the SpaceCadet map
+  //Setting is {KeyThatWasPressed, AlternativeKeyToSend, TimeoutInMS}
+  //Note: must end with the SPACECADET_MAP_END delimiter
+  static kaleidoscope::plugin::SpaceCadet::KeyBinding spacecadetmap[] = {
+    {Key_LeftShift, Key_LeftBracket, _SPACECADET_TIMEOUT_},
+    {Key_RightShift, Key_RightBracket, _SPACECADET_TIMEOUT_},
+    
+    {Key_LeftGui, Key_LeftParen, _SPACECADET_TIMEOUT_},
+    {Key_LeftAlt, Key_RightParen, _SPACECADET_TIMEOUT_},
+
+    {Key_LeftControl, Key_LeftAngleBracket, _SPACECADET_TIMEOUT_},
+    {Key_RightControl, Key_RightAngleBracket, _SPACECADET_TIMEOUT_},
+    
+    SPACECADET_MAP_END,
+  };
+  //Set the map.
+  SpaceCadet.setMap(spacecadetmap);
 
   // Editable layer names are stored in EEPROM too, and we reserve 16 bytes per
   // layer for them. We need one extra byte per layer for bookkeeping, so we
   // reserve 17 / layer in total.
-  LayerNames.reserve_storage(17 * 8);
+  //LayerNames.reserve_storage(17 * 8);
 
   // Unless configured otherwise with Chrysalis, we want to make sure that the
   // firmware starts with LED effects off. This avoids over-taxing devices that
